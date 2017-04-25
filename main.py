@@ -26,9 +26,18 @@ class Blog_db(db.Model):
     created_On = db.DateTimeProperty(auto_now_add = True)    #automatically gets date and time from the system
 #GQL ENTITY END
 
+class PermaLink(Handler):
+    def get(self,post_id):
+        blog = Blog_db.get_by_id(int(post_id))
+
+        if not blog:
+            return self.error(404)
+        self.render("permalink.html",permalink = True,blog=blog)
+
+
 class PostBlog(Handler):
     def render_front(self,title,blog,error):
-        self.render("posts.html",title=title,blog=blog,error=error)
+        self.render("newblog.html",writenewblog=True,title=title,blog=blog,error=error)
 
     def get(self):
         self.render_front(title="",blog="",error="")
@@ -40,15 +49,16 @@ class PostBlog(Handler):
         if title and blog:
             a = Blog_db(title=title,blog_post= blog)
             a.put()
-            self.redirect("/blog")
+            self.redirect("/blog/%s"%str(a.key().id()))
         else:
             self.render_front(title,blog,"One or More fields Empty!")
+
 
 class AllBlogs(Handler):
 
         def get(self):
             blogs = db.GqlQuery("SELECT * FROM Blog_db ORDER BY created_On DESC")
-            self.render("home.html",blogs=blogs)
+            self.render("allblogs.html",all_blogs = True,blogs=blogs)
 
 
 class MainPage(Handler):
@@ -56,12 +66,13 @@ class MainPage(Handler):
         self.render("home.html")
 
     def get(self):
-        self.render_front()
+        self.redirect("/blog")
 
 
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
-    ('/newblog', PostBlog),
-    ('/blog',AllBlogs)
+    ('/blog',AllBlogs),
+    ('/blog/newpost', PostBlog),
+    ('/blog/([0-9]+)',PermaLink)
 ], debug=True)

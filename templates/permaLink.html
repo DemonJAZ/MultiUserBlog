@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block permadisplay %}
+<div class="row">
+  <div class="col-md-10 col-md-offset-1 blogPost">
+    <div class="Title">
+      <p style="text-align:left;">{{blog.title}}
+      <span style="float:right;">{{blog.created_On.strftime("%Y-%m-%d %H:%M")}}</span>
+      </p>
+    </div>
+    <hr>
+    <pre class = "blogCust">{{blog.blog_post}}</pre>
+  </div>
+</div>
+<br>
+{% endblock %}
